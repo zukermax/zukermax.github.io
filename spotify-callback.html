@@ -31,7 +31,7 @@
 
   function fail(msg, showCode) {
     card.innerHTML = '<h1 class="err">Connection hit a snag</h1><p>' + msg + '</p>' +
-      (showCode ? '<p>Copy this code and paste it back in chat instead:</p><code id="c"></code>' +
+      (showCode ? '<p>Copy this code, switch back to the Goliath app, and paste it in the Spotify Connect box:</p><code id="c"></code>' +
        '<button id="b">Copy code</button>' : '');
     if (showCode) {
       document.getElementById('c').textContent = code;
@@ -55,7 +55,7 @@
   var savedState = stored('goliath.spk.state');
   if (!verifier || state !== savedState) {
     // Different browser/tab than the one that started login — fall back to manual code.
-    fail('This browser did not start the login. Paste the code in chat and it will be finished there.', true);
+    fail('This browser did not start the login. Copy the code below, switch back to the Goliath app, and paste it in the Spotify Connect box.', true);
     return;
   }
 
