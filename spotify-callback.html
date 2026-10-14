@@ -45,8 +45,14 @@
   if (err) { fail('Spotify said: ' + err.replace(/</g, '&lt;')); return; }
   if (!code) { fail('No code arrived. Open the approval link again.'); return; }
 
-  var verifier = sessionStorage.getItem('goliath.spk.verifier');
-  var savedState = sessionStorage.getItem('goliath.spk.state');
+  // Verifier lives in localStorage now (survives a new-tab return) with a
+  // sessionStorage fallback for logins started before that change.
+  function stored(k) {
+    try { var v = localStorage.getItem(k); if (v) return v; } catch (e) {}
+    try { return sessionStorage.getItem(k); } catch (e) { return null; }
+  }
+  var verifier = stored('goliath.spk.verifier');
+  var savedState = stored('goliath.spk.state');
   if (!verifier || state !== savedState) {
     // Different browser/tab than the one that started login — fall back to manual code.
     fail('This browser did not start the login. Paste the code in chat and it will be finished there.', true);
@@ -68,6 +74,7 @@
       access_token: t.access_token, refresh_token: t.refresh_token,
       expires_at: Date.now() + t.expires_in * 1000,
     }));
+    try { localStorage.removeItem('goliath.spk.verifier'); localStorage.removeItem('goliath.spk.state'); } catch (e) {}
     sessionStorage.removeItem('goliath.spk.verifier');
     sessionStorage.removeItem('goliath.spk.state');
     card.innerHTML = '<h1>Spotify connected</h1><p>Taking you back to your music…</p>';
