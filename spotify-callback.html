@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spotify connected — Goliath</title>
+<style>
+  body { font-family: -apple-system, "Segoe UI", sans-serif; background: #faf8f2; color: #2b2620;
+         display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+  .card { background: #fff; border: 1px solid #e7e0d2; border-radius: 12px; padding: 32px;
+          max-width: 560px; width: calc(100% - 48px); text-align: center; }
+  h1 { font-size: 20px; margin: 0 0 8px; }
+  p { color: #7a7264; font-size: 14px; }
+  code { display: block; background: #f4f0e6; border-radius: 8px; padding: 16px; margin: 16px 0;
+         word-break: break-all; font-size: 13px; user-select: all; }
+  button { background: #5c6f58; color: #fff; border: 0; border-radius: 8px; padding: 10px 20px;
+           font-size: 14px; cursor: pointer; }
+  .err { color: #a34a3a; }
+</style>
+</head>
+<body>
+<div class="card" id="card"><h1>Finishing Spotify connection…</h1></div>
+<script>
+  const q = new URLSearchParams(location.search);
+  const card = document.getElementById('card');
+  const code = q.get('code'), err = q.get('error');
+  if (code) {
+    card.innerHTML = '<h1>Spotify approved</h1><p>Copy this code and paste it back in chat:</p>' +
+      '<code id="c">' + code.replace(/</g, '&lt;') + '</code>' +
+      '<button id="b">Copy code</button>';
+    document.getElementById('b').onclick = () => {
+      navigator.clipboard.writeText(code);
+      document.getElementById('b').textContent = 'Copied';
+    };
+  } else {
+    card.innerHTML = '<h1 class="err">No code received</h1><p>' +
+      (err ? 'Spotify said: ' + err.replace(/</g, '&lt;') : 'Open the approval link again.') + '</p>';
+  }
+</script>
+</body>
+</html>
