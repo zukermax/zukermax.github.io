@@ -19,23 +19,63 @@
 </style>
 </head>
 <body>
-<div class="card" id="card"><h1>Finishing Spotify connection…</h1></div>
+<div class="card" id="card"><h1>Finishing Spotify connection…</h1><p>Exchanging the code, one moment.</p></div>
 <script>
-  const q = new URLSearchParams(location.search);
-  const card = document.getElementById('card');
-  const code = q.get('code'), err = q.get('error');
-  if (code) {
-    card.innerHTML = '<h1>Spotify approved</h1><p>Copy this code and paste it back in chat:</p>' +
-      '<code id="c">' + code.replace(/</g, '&lt;') + '</code>' +
-      '<button id="b">Copy code</button>';
-    document.getElementById('b').onclick = () => {
-      navigator.clipboard.writeText(code);
-      document.getElementById('b').textContent = 'Copied';
-    };
-  } else {
-    card.innerHTML = '<h1 class="err">No code received</h1><p>' +
-      (err ? 'Spotify said: ' + err.replace(/</g, '&lt;') : 'Open the approval link again.') + '</p>';
+(function () {
+  var CLIENT_ID = 'd526b450e6bb4be399f0010754055813';
+  var REDIRECT_URI = 'https://zukermax.github.io/spotify-callback';
+  var LS = 'goliath.spotify.tokens';
+  var card = document.getElementById('card');
+  var q = new URLSearchParams(location.search);
+  var code = q.get('code'), state = q.get('state'), err = q.get('error');
+
+  function fail(msg, showCode) {
+    card.innerHTML = '<h1 class="err">Connection hit a snag</h1><p>' + msg + '</p>' +
+      (showCode ? '<p>Copy this code and paste it back in chat instead:</p><code id="c"></code>' +
+       '<button id="b">Copy code</button>' : '');
+    if (showCode) {
+      document.getElementById('c').textContent = code;
+      document.getElementById('b').onclick = function () {
+        navigator.clipboard.writeText(code);
+        document.getElementById('b').textContent = 'Copied';
+      };
+    }
   }
+
+  if (err) { fail('Spotify said: ' + err.replace(/</g, '&lt;')); return; }
+  if (!code) { fail('No code arrived. Open the approval link again.'); return; }
+
+  var verifier = sessionStorage.getItem('goliath.spk.verifier');
+  var savedState = sessionStorage.getItem('goliath.spk.state');
+  if (!verifier || state !== savedState) {
+    // Different browser/tab than the one that started login — fall back to manual code.
+    fail('This browser did not start the login. Paste the code in chat and it will be finished there.', true);
+    return;
+  }
+
+  fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'authorization_code', code: code, redirect_uri: REDIRECT_URI,
+      client_id: CLIENT_ID, code_verifier: verifier,
+    }),
+  }).then(function (r) {
+    if (!r.ok) throw new Error('exchange ' + r.status);
+    return r.json();
+  }).then(function (t) {
+    localStorage.setItem(LS, JSON.stringify({
+      access_token: t.access_token, refresh_token: t.refresh_token,
+      expires_at: Date.now() + t.expires_in * 1000,
+    }));
+    sessionStorage.removeItem('goliath.spk.verifier');
+    sessionStorage.removeItem('goliath.spk.state');
+    card.innerHTML = '<h1>Spotify connected</h1><p>Taking you back to your music…</p>';
+    setTimeout(function () { location.href = '/#/culture/music'; }, 900);
+  }).catch(function () {
+    fail('The token exchange failed in this browser.', true);
+  });
+})();
 </script>
 </body>
 </html>
