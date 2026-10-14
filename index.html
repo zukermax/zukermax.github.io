@@ -13,19 +13,16 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-    <script type="module" crossorigin src="/assets/index-h6TVvLEI.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CxDH3l05.css">
+    <script type="module" crossorigin src="/assets/index-AVDNSlQC.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BqxBchF7.css">
   <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
   <body>
     <div class="app">
-      <aside class="side">
+      <header class="topbar">
         <a class="brand" href="#/"><img src="/icons/favicon.svg" alt="" width="28" height="28" /><span>Goliath</span></a>
-        <nav id="nav" class="nav" aria-label="Domains"></nav>
-        <div class="side-foot">
-          <div class="legend-title">Boundaries</div>
-          <div id="legend" class="legend"></div>
-        </div>
-      </aside>
+        <button id="burger" class="burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
+      </header>
+      <nav id="menu" class="menu" hidden aria-label="Menu"></nav>
       <main id="main" class="main" tabindex="-1"></main>
     </div>
     <footer class="foot"><span id="build"></span></footer>
